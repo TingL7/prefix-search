@@ -37,6 +37,7 @@ static void rmcrlf(char *s)
 int main(int argc, char **argv)
 {
     char word[WRDMAX] = "";
+    char (*word_tst)[WRDMAX] = malloc(260000 * sizeof(*word_tst));
     char *sgl[LMAX] = {NULL};
     tst_node *root = NULL, *res = NULL;
     int rtn = 0, idx = 0, sidx = 0;
@@ -49,10 +50,10 @@ int main(int argc, char **argv)
     }
 
     t1 = tvgetf();
-    while ((rtn = fscanf(fp, "%s", word)) != EOF) {
-        char *p = word;
+    while ((rtn = fscanf(fp, "%s", word_tst[idx])) != EOF) {
+        char *p = word_tst[idx];
         /* FIXME: insert reference to each string */
-        if (!tst_ins_del(&root, &p, INS, CPY)) {
+        if (!tst_ins_del(&root, &p, INS, REF)) {
             fprintf(stderr, "error: memory exhausted, tst_insert.\n");
             fclose(fp);
             return 1;
@@ -150,6 +151,7 @@ int main(int argc, char **argv)
             break;
         case 'q':
             tst_free_all(root);
+            free(word_tst);
             return 0;
             break;
         default:
