@@ -150,7 +150,7 @@ int main(int argc, char **argv)
             }
             break;
         case 'q':
-            tst_free_all(root);
+            tst_free(root);
             free(word_tst);
             return 0;
             break;
