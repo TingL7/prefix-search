@@ -80,15 +80,15 @@ int main(int argc, char **argv)
         switch (*word) {
         case 'a':
             printf("enter word to add: ");
-            if (!fgets(word, sizeof word, stdin)) {
+            if (!fgets(word_tst[idx], sizeof word_tst[idx], stdin)) {
                 fprintf(stderr, "error: insufficient input.\n");
                 break;
             }
-            rmcrlf(word);
-            p = word;
+            rmcrlf(word_tst[idx]);
+            p = word_tst[idx];
             t1 = tvgetf();
             /* FIXME: insert reference to each string */
-            res = tst_ins_del(&root, &p, INS, CPY);
+            res = tst_ins_del(&root, &p, INS, REF);
             t2 = tvgetf();
             if (res) {
                 idx++;
