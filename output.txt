@@ -1,2 +1,0 @@
-tst-build 0.100200 0.118800
-tst-prefix-search() 0.000004 0.000004

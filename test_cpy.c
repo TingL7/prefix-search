@@ -32,6 +32,7 @@ static void rmcrlf(char *s)
         s[--len] = 0;
 }
 
+
 #define IN_FILE "cities.txt"
 #define OUT_FILE "out_cpy.txt"
 
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
     FILE *fp = fopen(IN_FILE, "r");
     FILE *fp_out;
     double t1, t2;
-    int bench_flag = (strcmp(argv[1], "--bench"))?0:1;
+    int bench_flag = (argc > 1 && !(strcmp(argv[1], "--bench")))?1:0;
 
     if (!fp) { /* prompt, open, validate file for reading */
         fprintf(stderr, "error: file open failed '%s'.\n", argv[1]);

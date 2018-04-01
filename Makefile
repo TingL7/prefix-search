@@ -57,6 +57,6 @@ bench: $(TESTS) calculate.c
 
 clean:
 	$(RM) $(TESTS) $(OBJS)
-	$(RM) $(deps) out_cpy.txt out_ref.txt output.txt
+	$(RM) $(deps) out_cpy.txt out_ref.txt output.txt calculate runtime.png
 
 -include $(deps)

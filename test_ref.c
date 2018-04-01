@@ -32,27 +32,22 @@ static void rmcrlf(char *s)
         s[--len] = 0;
 }
 
-void fn(const void *p, void *data)
-{
-    ++*(int *)data;
-}
 
 #define IN_FILE "cities.txt"
 #define OUT_FILE "out_ref.txt"
 
 int main(int argc, char **argv)
 {
-    char word[WRDMAX] = "";
+    char word[WRDMAX] = "", *str, str_ar[WRDMAX * 3];
     char (*word_tst)[WRDMAX] = malloc(260000 * sizeof(*word_tst));
     int i = 0;
     char *sgl[LMAX] = {NULL};
     tst_node *root = NULL, *res = NULL;
-    int rtn = 0, idx = 0, sidx = 0;
+    int idx = 0, sidx = 0;
     FILE *fp = fopen(IN_FILE, "r");
     FILE *fp_out;
     double t1, t2;
     int bench_flag = (argc > 1 && !(strcmp(argv[1], "--bench")))?1:0;
-    int data = 0;
 
     if (!fp) { /* prompt, open, validate file for reading */
         fprintf(stderr, "error: file open failed '%s'.\n", argv[1]);
@@ -60,16 +55,33 @@ int main(int argc, char **argv)
     }
 
     t1 = tvgetf();
-    while ((rtn = fscanf(fp, "%s", word_tst[i])) != EOF) {
-        char *p = word_tst[i];
-        /* FIXME: insert reference to each string */
-        if (!tst_ins_del(&root, &p, INS, REF)) {
-            fprintf(stderr, "error: memory exhausted, tst_insert.\n");
-            fclose(fp);
-            return 1;
+    while ((fgets(str_ar, WRDMAX * 3, fp)) != NULL) {
+        str = str_ar;
+        strcpy(word, strsep(&str, ",\n"));
+
+        while (strcmp(word, "") != 0) {
+            if(word[0] == ' ') {
+                int j;
+                for(j = 1; j < strlen(word); j++)
+                    word_tst[i][j-1] = word[j];
+                word_tst[i][j-1] = '\0';
+            } else {
+                int j;
+                for(j = 0; j < strlen(word); j++)
+                    word_tst[i][j] = word[j];
+                word_tst[i][j] = '\0';
+            }
+            char *p = word_tst[i];
+            /* FIXME: insert reference to each string */
+            if (!tst_ins_del(&root, &p, INS, REF)) {
+                fprintf(stderr, "error: memory exhausted, tst_insert.\n");
+                fclose(fp);
+                return 1;
+            }
+            idx++;
+            i++;
+            strcpy(word, strsep(&str, ",\n"));
         }
-        idx++;
-        i++;
     }
     t2 = tvgetf();
 
@@ -79,8 +91,6 @@ int main(int argc, char **argv)
         fp_out = fopen(OUT_FILE,"a");
         fprintf(fp_out, "tst_build %.6f ", t2 - t1);
     }
-    tst_traverse_fn(root, fn, &data);
-    printf("data: %d\n", data);
 
     for (;;) {
         char *p;
