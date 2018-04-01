@@ -32,7 +32,13 @@ static void rmcrlf(char *s)
         s[--len] = 0;
 }
 
+void fn(const void *p, void *data)
+{
+    ++*(int *)data;
+}
+
 #define IN_FILE "cities.txt"
+#define OUT_FILE "out_ref.txt"
 
 int main(int argc, char **argv)
 {
@@ -43,8 +49,10 @@ int main(int argc, char **argv)
     tst_node *root = NULL, *res = NULL;
     int rtn = 0, idx = 0, sidx = 0;
     FILE *fp = fopen(IN_FILE, "r");
+    FILE *fp_out;
     double t1, t2;
-    int bench_flag = (strcmp(argv[1], "--bench"))?0:1;
+    int bench_flag = (argc > 1 && !(strcmp(argv[1], "--bench")))?1:0;
+    int data = 0;
 
     if (!fp) { /* prompt, open, validate file for reading */
         fprintf(stderr, "error: file open failed '%s'.\n", argv[1]);
@@ -67,6 +75,12 @@ int main(int argc, char **argv)
 
     fclose(fp);
     printf("ternary_tree, loaded %d words in %.6f sec\n", idx, t2 - t1);
+    if(bench_flag) {
+        fp_out = fopen(OUT_FILE,"a");
+        fprintf(fp_out, "tst_build %.6f ", t2 - t1);
+    }
+    tst_traverse_fn(root, fn, &data);
+    printf("data: %d\n", data);
 
     for (;;) {
         char *p;
@@ -152,7 +166,8 @@ int main(int argc, char **argv)
                 if(bench_flag == 0) {
                     for (int i = 0; i < sidx; i++)
                         printf("suggest[%d] : %s\n", i, sgl[i]);
-                }
+                } else
+                    fprintf(fp_out, "tst_search_prefix %.6f \n", t2 - t1);
             } else
                 printf("  %s - not found\n", word);
             break;
@@ -182,6 +197,8 @@ int main(int argc, char **argv)
         case 'q':
             tst_free(root);
             free(word_tst);
+            if(bench_flag)
+                fclose(fp_out);
             return 0;
             break;
         default:

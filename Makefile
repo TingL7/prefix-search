@@ -42,7 +42,7 @@ test_%: test_%.o $(OBJS_LIB)
 	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CC) -o $@ $(CFLAGS) -c -MMD -MF .$@.d $<
 
-bench: $(TESTS)
+bench: $(TESTS) calculate.c
 	perf stat --repeat 100 \
 		-e cache-misses,cache-references,instructions,cycles \
 		./test_cpy --bench $(DATA)
@@ -50,9 +50,13 @@ bench: $(TESTS)
 	perf stat --repeat 100 \
 		-e cache-misses,cache-references,instructions,cycles \
 		./test_ref --bench $(DATA)
+	
+	$(CC) $(CFLAGS) calculate.c -o calculate
+	./calculate	
+	gnuplot scripts/runtime.gp
 
 clean:
 	$(RM) $(TESTS) $(OBJS)
-	$(RM) $(deps)
+	$(RM) $(deps) out_cpy.txt out_ref.txt output.txt
 
 -include $(deps)
