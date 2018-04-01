@@ -43,9 +43,14 @@ test_%: test_%.o $(OBJS_LIB)
 	$(Q)$(CC) -o $@ $(CFLAGS) -c -MMD -MF .$@.d $<
 
 bench: $(TESTS)
+	perf stat --repeat 100 \
+		-e cache-misses,cache-references,instructions,cycles \
 		./test_cpy --bench $(DATA)
-		./test_ref --bench $(DATA)
 	
+	perf stat --repeat 100 \
+		-e cache-misses,cache-references,instructions,cycles \
+		./test_ref --bench $(DATA)
+
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
