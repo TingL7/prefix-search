@@ -6,6 +6,7 @@
 
 /** ternary search tree node. */
 typedef struct tst_node {
+    char iscity;			/* n(not word), y(yes, city), s(state), c(country)*/
     char key;               /* char key for node (null for node with string) */
     unsigned refcnt;        /* refcnt tracks occurrence of word (for delete) */
     struct tst_node *lokid; /* ternary low child pointer */

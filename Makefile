@@ -54,9 +54,11 @@ bench: $(TESTS) calculate.c
 	$(CC) $(CFLAGS) calculate.c -o calculate
 	./calculate	
 	gnuplot scripts/runtime.gp
+	gnuplot scripts/runtime2.gp
+	gnuplot scripts/runtime3.gp
 
 clean:
-	$(RM) $(TESTS) $(OBJS)
-	$(RM) $(deps) out_cpy.txt out_ref.txt output.txt calculate runtime.png
+	$(RM) $(TESTS) $(OBJS) calculate
+	$(RM) $(deps) out_cpy.txt out_ref.txt output.txt cpy.txt ref.txt *.png
 
 -include $(deps)

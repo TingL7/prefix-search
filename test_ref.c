@@ -32,25 +32,29 @@ static void rmcrlf(char *s)
         s[--len] = 0;
 }
 
-
+#define PREFIX 3
 #define IN_FILE "cities.txt"
 #define OUT_FILE "out_ref.txt"
+#define OUT_FILE2 "ref.txt"
 
 int main(int argc, char **argv)
 {
     char word[WRDMAX] = "", *str, str_ar[WRDMAX * 3];
-    char (*word_tst)[WRDMAX] = malloc(260000 * sizeof(*word_tst));
-    int i = 0;
+    char (*word_tst)[WRDMAX] = malloc(210000 * sizeof(*word_tst));
+    int i = 0, count = 0;
     char *sgl[LMAX] = {NULL};
     tst_node *root = NULL, *res = NULL;
     int idx = 0, sidx = 0;
     FILE *fp = fopen(IN_FILE, "r");
-    FILE *fp_out;
+    FILE *fp_out, *fp_out2 = fopen(OUT_FILE2, "w");
     double t1, t2;
     int bench_flag = (argc > 1 && !(strcmp(argv[1], "--bench")))?1:0;
+    char search_word[PREFIX] = "";
 
     if (!fp) { /* prompt, open, validate file for reading */
         fprintf(stderr, "error: file open failed '%s'.\n", argv[1]);
+        fclose(fp);
+        fclose(fp_out2);
         return 1;
     }
 
@@ -91,6 +95,20 @@ int main(int argc, char **argv)
         fp_out = fopen(OUT_FILE,"a");
         fprintf(fp_out, "tst_build %.6f ", t2 - t1);
     }
+
+    fp = fopen(IN_FILE, "r");
+    while(fscanf(fp, "%s", word) != EOF) {
+        if(strlen(word) < 3) continue;
+        strncpy(search_word, word, PREFIX);
+        t1 = tvgetf();
+        tst_search_prefix(root, search_word, sgl, &sidx, LMAX);
+        t2 = tvgetf();
+        fprintf(fp_out2, "%d %.8f\n", count++, t2 - t1);
+    }
+
+    fclose(fp_out2);
+    fclose(fp);
+
 
     for (;;) {
         char *p;
@@ -216,6 +234,5 @@ int main(int argc, char **argv)
             break;
         }
     }
-
     return 0;
 }
