@@ -3,6 +3,7 @@ TESTS = \
     test_ref
 
 CFLAGS = -Wall -Werror -g
+DATA = s Tain
 
 # Control the build verbosity                                                   
 ifeq ("$(VERBOSE)","1")
@@ -41,6 +42,10 @@ test_%: test_%.o $(OBJS_LIB)
 	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CC) -o $@ $(CFLAGS) -c -MMD -MF .$@.d $<
 
+bench: $(TESTS)
+		./test_cpy --bench $(DATA)
+		./test_ref --bench $(DATA)
+	
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)

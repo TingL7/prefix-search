@@ -42,6 +42,7 @@ int main(int argc, char **argv)
     int rtn = 0, idx = 0, sidx = 0;
     FILE *fp = fopen(IN_FILE, "r");
     double t1, t2;
+    int bench_flag = (strcmp(argv[1], "--bench"))?0:1;
 
     if (!fp) { /* prompt, open, validate file for reading */
         fprintf(stderr, "error: file open failed '%s'.\n", argv[1]);
@@ -65,22 +66,35 @@ int main(int argc, char **argv)
 
     for (;;) {
         char *p;
-        printf(
-            "\nCommands:\n"
-            " a  add word to the tree\n"
-            " f  find word in tree\n"
-            " s  search words matching prefix\n"
-            " d  delete word from the tree\n"
-            " q  quit, freeing all data\n\n"
-            "choice: ");
-        fgets(word, sizeof word, stdin);
+        if(bench_flag) {
+            if(bench_flag > 1)
+                strcpy(word, "q");
+            else {
+                strcpy(word, argv[2]);
+                bench_flag++;
+            }
+        } else {
+            printf(
+                "\nCommands:\n"
+                " a  add word to the tree\n"
+                " f  find word in tree\n"
+                " s  search words matching prefix\n"
+                " d  delete word from the tree\n"
+                " q  quit, freeing all data\n\n"
+                "choice: ");
+            fgets(word, sizeof word, stdin);
+        }
         p = NULL;
         switch (*word) {
         case 'a':
-            printf("enter word to add: ");
-            if (!fgets(word, sizeof word, stdin)) {
-                fprintf(stderr, "error: insufficient input.\n");
-                break;
+            if(bench_flag)
+                strcpy(word, argv[3]);
+            else {
+                printf("enter word to add: ");
+                if (!fgets(word, sizeof word, stdin)) {
+                    fprintf(stderr, "error: insufficient input.\n");
+                    break;
+                }
             }
             rmcrlf(word);
             p = word;
@@ -95,10 +109,14 @@ int main(int argc, char **argv)
                 printf("  %s - already exists in list.\n", (char *) res);
             break;
         case 'f':
-            printf("find word in tree: ");
-            if (!fgets(word, sizeof word, stdin)) {
-                fprintf(stderr, "error: insufficient input.\n");
-                break;
+            if(bench_flag)
+                strcpy(word, argv[3]);
+            else {
+                printf("find word in tree: ");
+                if (!fgets(word, sizeof word, stdin)) {
+                    fprintf(stderr, "error: insufficient input.\n");
+                    break;
+                }
             }
             rmcrlf(word);
             t1 = tvgetf();
@@ -110,27 +128,37 @@ int main(int argc, char **argv)
                 printf("  %s not found.\n", word);
             break;
         case 's':
-            printf("find words matching prefix (at least 1 char): ");
-            if (!fgets(word, sizeof word, stdin)) {
-                fprintf(stderr, "error: insufficient input.\n");
-                break;
+            if(bench_flag)
+                strcpy(word, argv[3]);
+            else {
+                printf("find words matching prefix (at least 1 char): ");
+                if (!fgets(word, sizeof word, stdin)) {
+                    fprintf(stderr, "error: insufficient input.\n");
+                    break;
+                }
             }
             rmcrlf(word);
             t1 = tvgetf();
             res = tst_search_prefix(root, word, sgl, &sidx, LMAX);
             t2 = tvgetf();
             if (res) {
-                printf("  %s - searched prefix in %.6f sec\n\n", word, t2 - t1);
-                for (int i = 0; i < sidx; i++)
-                    printf("suggest[%d] : %s\n", i, sgl[i]);
+                printf("  %s - searched prefix in %.6f sec, %d suggests\n\n", word, t2 - t1, sidx);
+                if(bench_flag == 0) {
+                    for (int i = 0; i < sidx; i++)
+                        printf("suggest[%d] : %s\n", i, sgl[i]);
+                }
             } else
                 printf("  %s - not found\n", word);
             break;
         case 'd':
-            printf("enter word to del: ");
-            if (!fgets(word, sizeof word, stdin)) {
-                fprintf(stderr, "error: insufficient input.\n");
-                break;
+            if(bench_flag)
+                strcpy(word, argv[3]);
+            else {
+                printf("enter word to del: ");
+                if (!fgets(word, sizeof word, stdin)) {
+                    fprintf(stderr, "error: insufficient input.\n");
+                    break;
+                }
             }
             rmcrlf(word);
             p = word;
